@@ -8,4 +8,12 @@ chatGPT老师协助
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 
 ---
+
 我把自己工作中的习惯蒸馏成了我自己的skill，欢迎使用
+
+---
+
+## projects
+UI-BW-design——一套黑白硬朗的设计范式
+before-push——一整套push前的代码大筛查
+my-novels——我喜欢的写作方式和特点
