@@ -21,3 +21,14 @@ before-push——一整套push前的代码大筛查
 
 my-novels——我喜欢的写作方式和特点
 
+---
+
+## install
+
+```bash
+
+npx skills add QinAnze/SKILLS
+
+```
+
+
