@@ -1,4 +1,7 @@
 ---
+name: UI-BW-design
+description: a black-and-white square ASCII-art design prompt
+version: 1.0.0
 title: "极简黑白 UI 设计风格手册"
 description: "一套以黑白配色、零圆角、受限配色为核心的桌面应用 UI 设计风格指南"
 created: "2026-07-31"

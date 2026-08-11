@@ -1,3 +1,9 @@
+---
+name: before-push-v1
+description: this is a deprecated version
+version: 1.0.0
+---
+
 # 项目优化与发布准备 Skill
 
 ## 角色定位

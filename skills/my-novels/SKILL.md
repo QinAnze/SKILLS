@@ -1,4 +1,7 @@
 ---
+name: my-novels
+description: for the whole novel frame
+version: 1.0.0
 title: "泛用写作风格指南：莫言-王小波-刘慈欣融合路线"
 summary: "适用于现实主义、科幻、社会批判类写作的泛用风格规范，融合三位大师的核心技法"
 read_when:

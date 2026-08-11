@@ -1,4 +1,7 @@
 ---
+name: my-novels-genZ
+description: for the character of humans
+version: 1.0.0
 title: "00后一代人：代际心理与人物塑造指南（第二版）"
 summary: "从应试教育与数字时代中诞生的——00后群体的心理机制、行为模式与写作应用指南"
 read_when:

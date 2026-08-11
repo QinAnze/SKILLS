@@ -1,3 +1,9 @@
+---
+name: before-push-v2
+description: a skill which aims to enhance code quality before a commit
+version: 1.0.0
+---
+
 # 软件工程 Loop 引擎
 
 ## 定位
