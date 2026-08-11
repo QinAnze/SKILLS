@@ -25,10 +25,9 @@ my-novels——我喜欢的写作方式和特点
 
 ## install
 
+在终端中输入：
 ```bash
-
 npx skills add QinAnze/SKILLS
-
 ```
 
 
