@@ -1,25 +1,25 @@
 ---
 name: avalonia-glass
-title: Avalonia 单板毛玻璃 UI 设计系统（极简 · 纯黑白 · 高流畅 · 非线性）
-summary: 在 C# Avalonia 11 桌面端实现极简毛玻璃界面——整窗单块玻璃板、真毛玻璃(acrylic)、无衬线高清无描边字体、文字纯黑/纯白、GPU 合成的高帧率非线性(缓动/弹簧)动画、retained-mode 可视化控件(环形仪表/迷你曲线)。融合 Apple 流体界面与动画审计原则。本 skill 提供范式与原理，代码须按需求理解后生成。
+title: Avalonia 单板毛玻璃 UI 设计系统（极简 · 纯黑白 · 高流畅 · 非线性 · 圆角一致 · SVG 图标）
+summary: 在 C# Avalonia 11 桌面端实现极简毛玻璃界面——整窗单块玻璃板、真毛玻璃(acrylic)、无衬线高清无描边字体、文字纯黑/纯白、GPU 合成的高帧率非线性(缓动/弹簧)动画、retained-mode 可视化控件、圆角一致的嵌套半径体系、SVG 现代极简 icon-only 图标(禁 emoji/系统图标)。融合 Apple 流体界面与动画审计原则。本 skill 提供范式与原理，代码须按需求理解后生成。
 description: >
   当用户要求在 C# Avalonia 11（net8.0）做"玻璃风 / 毛玻璃 / glassmorphism"极简界面时使用：
-  透明无边框窗口(窗口级 acrylic 一整块玻璃板)、内容直接布局在单板上不堆小组件块、
-  无衬线高清无描边字体、文字纯黑或纯白、GPU 合成的高帧率非线性缓动动画(精确曲线 + 时长预算
-  + 中断性 + 物理性)、retained-mode 性能隔离可视化控件。音频后端(NAudio)不在本 skill 范围。
+  透明无边框窗口(窗口级 acrylic 一整块玻璃板)、内容直接布局在单板上不堆小组件块、无衬线高清无描边
+  字体、文字纯黑或纯白、GPU 合成的高帧率非线性缓动动画(精确曲线 + 时长预算 + 中断性 + 物理性)、
+  圆角一致的嵌套半径体系、SVG 现代极简 icon-only 图标(禁 emoji/系统资源图标)、retained-mode 性能隔离。
 agent_created: true
 ---
 
-# Avalonia 单板毛玻璃 UI 设计系统（极简 · 纯黑白 · 高流畅 · 非线性）
+# Avalonia 单板毛玻璃 UI 设计系统（极简 · 纯黑白 · 高流畅 · 非线性 · 圆角一致 · SVG 图标）
 
 适用栈：`Avalonia 11.2.x` + `net8.0`，implicit usings 开启。观感：macOS/iOS 风极简磨砂玻璃——
-克制、单板、纯黑白文字、流畅且物理自然的非线性动画。
+克制、单板、纯黑白文字、流畅且物理自然的非线性动画、弧度贴合、现代极简图标。
 
 > ⚠️ **代码生成纪律（务必遵守）**：本 skill 给的是**范式与原理**，不是可粘贴的模板。
-> 先理解下面 §0 的七条铁律，再依据你当前项目的 `AssemblyName`、主题、圆角、动画曲线**重新生成**
+> 先理解下面 §0 的九条铁律，再依据你当前项目的 `AssemblyName`、主题、圆角、动画曲线**重新生成**
 > 对应代码。示例里的颜色、不透明度、时长、缓动类型只是示意，必须按设计需求重新定值，**不要逐字照抄**。
 
-## 0. 设计铁律（七条，全部必须遵守）
+## 0. 设计铁律（九条，全部必须遵守）
 
 1. **单块玻璃板**：整个窗口就是一块玻璃——一个根 `GlassPanel` / `GlassSurface`，所有内容（文字、
    控件、可视化）直接布局在它之上。**禁止**在板上再新添 `GlassCard` 或任何独立的玻璃"小组件块"
@@ -38,6 +38,13 @@ agent_created: true
    数值变化用 `CubicEaseOut` 补间；手势/可中断动效用可重定向的 `Transition`/弹簧，从中断值继续而非跳变。
 7. **目的性动画**：动画必须服务功能（反馈 / 状态指示 / 空间一致 / 防止跳变），不为装饰。
    **高频动作（键盘快捷键、命令面板）干脆不动画**；越常用的动效越短越微妙。
+8. **圆角一致（贴合）**：建立统一的嵌套半径体系——**内层圆角 = 外层圆角 − 间距**，使弧度沿层级
+   自然收缩、视觉贴合；**禁止**内层圆角大于外层（溢出/不贴合），也**禁止**同屏元素四个角弧度随意
+   不一致（除非有意的非对称，如抽屉只圆上沿）。窗口圆角与根玻璃板圆角必须协调（板铺满窗口时板圆角 = 窗口圆角）。
+9. **SVG 图标 · icon-only**：图标用 **SVG 矢量**（内联 `StreamGeometry`/`Path`，或 `Avalonia.Svg`），
+   现代极简线性风格（描边 1.5–2px、圆角端点）、单色（纯黑/纯白）。**能用图标表意就不附文字**；
+   **禁止 emoji**（彩色、跨平台不一致、破坏纯黑白极简）与**系统资源图标**（`SymbolIcon`/MDL2/`FontIcon`
+   系统字体字形/位图 PNG）。
 
 ## 1. 工程初始化
 
@@ -58,15 +65,18 @@ agent_created: true
   <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
   <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
   <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
+  <!-- SVG 图标若用 .svg 文件而非内联 StreamGeometry，加： -->
+  <!-- <PackageReference Include="Avalonia.Svg" Version="11.2.1" /> -->
 </ItemGroup>
 ```
 
-`App.axaml`：深色主题 + 引入玻璃主题（主题里只放资源与控件模板，不放 `FluentTheme` 之外的全局覆盖）：
+`App.axaml`：深色主题 + 引入玻璃主题与图标几何字典（主题里只放资源与控件模板，不放 `FluentTheme` 之外的全局覆盖）：
 ```xml
 <App xmlns="https://github.com/avaloniaui" RequestedThemeVariant="Dark">
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://你的项目名/Styles/LiquidGlassTheme.axaml" />
+    <StyleInclude Source="avares://你的项目名/Styles/Geometries.axaml" />   <!-- SVG 图标几何字典 -->
   </Application.Styles>
 </App>
 ```
@@ -79,6 +89,7 @@ MainWindow 顶层（桌面端模糊靠系统合成器）：
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
+        CornerRadius="12"                 <!-- 窗口圆角，与根玻璃板协调（见 §4） -->
         Background="Transparent" Foreground="#FFFFFF">
 ```
 - `TransparencyLevelHint="AcrylicBlur"` → 操作系统对窗口后方做亚克力模糊，即"底层一整块玻璃板"，
@@ -93,7 +104,7 @@ MainWindow 顶层（桌面端模糊靠系统合成器）：
 "分区感"用留白、对齐、分隔线（纯白低透明度）、不同内容层实现。
 
 ```xml
-<local:GlassPanel x:Name="Board" CornerRadius="16" TintOpacity="0.4" Padding="0">
+<local:GlassPanel x:Name="Board" CornerRadius="12" TintOpacity="0.4" Padding="16">
   <Grid RowDefinitions="Auto,*,Auto">
     <!-- 第 0 行：标题栏 + 苹果交通灯 -->
     <!-- 第 1 行：主内容区——文字/可视化直接布局，不另起玻璃块 -->
@@ -105,7 +116,38 @@ MainWindow 顶层（桌面端模糊靠系统合成器）：
 > 需要视觉分隔，用 `<Separator Background="#20FFFFFF" />`（纯白 12.5% 透明度）或留白与对齐，
 > **不要**放第二块 `GlassCard`。材料分层靠"同一块板上的透明度/留白"，不是叠第二块玻璃。
 
-## 4. 玻璃面实现范式（理解后生成，勿照抄）
+## 4. 圆角体系与贴合原则（九条铁律之 8）
+
+不一致的圆角（窗口 12、板 16、按钮 20）是最容易被看出"不贴合"的廉价感来源。建立**统一嵌套半径体系**：
+
+**半径令牌（设计令牌，按项目定一档）**：
+| 令牌 | 值 | 用途 |
+| --- | --- | --- |
+| `--radius-window` | 12 | 窗口外缘 `Window.CornerRadius` |
+| `--radius-board` | 12 | 根 `GlassPanel`（铺满窗口时 = 窗口圆角） |
+| `--radius-control` | 10 | 按钮 / 输入框 / 卡片 |
+| `--radius-chip` | 6 | 小标签 / 圆点 / 图标按钮 |
+
+**贴合铁律（iOS 嵌套收缩规则）**：
+- **内层圆角 = 外层圆角 − 间距(gap/padding)**。当内层元素直接嵌在外层圆角容器里，其圆角应比外层
+  **小一个间距量**，否则内层方角会顶出外层弧线、显得浮起不贴合。
+  - 例：板圆角 12、板内边距 16、内部控件紧贴内容区 → 控件圆角 = `12 − 16` 为负，取最小视觉值（如 6–8）；
+    若控件与板边仅隔 4px，则控件圆角 = `12 − 4 = 8`。
+- **板铺满窗口**（无外边距）：板圆角 **= 窗口圆角**（12 = 12），两者弧线重合，贴合。
+- **禁止**内层圆角 > 外层圆角（溢出）；**禁止**同屏多个同层级元素圆角值乱跳（如一个按钮 8 一个 14）。
+- 仅"有意非对称"可破例：抽屉/底部 sheet 只圆**上沿**（`CornerRadius="12,12,0,0"`），但需全站一致。
+- 四个角**默认一致**（统一 `CornerRadius` 单值）；圆角端点/描边用 `Round` 不显硬。
+
+```xml
+<!-- 一致示例：窗口12 / 板12 / 控件10（板内边距16时控件视觉取小值，如8） -->
+<Window CornerRadius="12" ...>
+  <local:GlassPanel CornerRadius="12" Padding="16">
+    <Button CornerRadius="8" ... />   <!-- 12 − 16≈负 → 落到最小舒适值 8 -->
+  </local:GlassPanel>
+</Window>
+```
+
+## 5. 玻璃面实现范式（理解后生成，勿照抄）
 
 `GlassSurface` 是纯视觉层（`Control`，`IsHitTestVisible=false`），用 retained-mode `DrawingContext`
 画玻璃；画刷按 (tint,opacity,gloss) 缓存，属性变才 `InvalidateVisual`。下列为**范式示意**，
@@ -204,7 +246,7 @@ public class GlassSurface : Control
 > 想更"湿"：把 `TintOpacity` 降到 0.3，而不是去叠 GPU 模糊。记住——模糊来自窗口级 acrylic，
 > 控件只负责低不透明度 tint 与描边。
 
-## 5. 字体规范（无衬线 · 高清 · 无描边）
+## 6. 字体规范（无衬线 · 高清 · 无描边）
 
 - **无衬线 + 系统优先**：优先系统无衬线（`"Segoe UI, Inter, sans-serif"` 或 `avares` 引入的无衬线
   TTF）；不混用衬线体。系统字体已带光学尺寸与字距微调，除非有理由否则不覆盖。
@@ -222,24 +264,24 @@ public class GlassSurface : Control
 <TextBlock FontSize="13" LetterSpacing="0" .../>
 ```
 
-## 6. 颜色规范（纯黑 / 纯白）
+## 7. 颜色规范（纯黑 / 纯白）
 
 - 文字：纯白 `#FFFFFF`（深板）/ 纯黑 `#000000`（浅板）；本项目深色玻璃用纯白。
 - 次要文字：纯白 + `Opacity="0.6"`（**不是**灰 `#9A9AA2` 之类的中间色）。
 - **禁用**：灰色文字、金棕/蓝/青等彩色文字、彩色 accent 文字。
-- 玻璃 tint（板染色）可保留动态取色，但**板上文字恒为纯黑白**。
+- 图标同样只用纯黑/纯白（见 §9）；玻璃 tint（板染色）可保留动态取色，但**板上文字与图标恒为纯黑白**。
 
 设计令牌（去色，纯黑白）：
 ```xml
-<Color x:Key="GlassText">#FFFFFF</Color>           <!-- 主文字：纯白 -->
+<Color x:Key="GlassText">#FFFFFF</Color>           <!-- 主文字/图标：纯白 -->
 <!-- 次要文字：直接用 GlassText + Opacity 降级，不要定义灰色 -->
 <SolidColorBrush x:Key="GlassForeground" Color="{StaticResource GlassText}" />
 <SolidColorBrush x:Key="HairlineBrush" Color="#20FFFFFF" />   <!-- 分隔线：纯白 12.5% -->
 ```
 
-## 7. 运动系统：高帧率 + 非线性（核心章节）
+## 8. 运动系统：高帧率 + 非线性（核心章节）
 
-### 7.1 缓动决策表（选对曲线，再映射 Avalonia）
+### 8.1 缓动决策表（选对曲线，再映射 Avalonia）
 | 场景 | 缓动 | 精确曲线（cubic-bezier） | Avalonia 写法 |
 | --- | --- | --- | --- |
 | 进入 / 退出（entrance/exit） | ease-out | `0.23, 1, 0.32, 1` | `Easing="CubicEaseOut"` 或 `KeySpline="0.23,1,0.32,1"` |
@@ -251,7 +293,7 @@ public class GlassSurface : Control
 > **铁律**：UI 上**绝不用 `ease-in`**（起步慢、延迟用户注视的那一刻）；默认就是 `ease-out`。
 > 内置弱曲线不够"有劲"，用上表强曲线（存成共享 token，别散落五个近似 cubic-bezier）。
 
-### 7.2 时长预算（UI 动画一律 < 300ms）
+### 8.2 时长预算（UI 动画一律 < 300ms）
 | 元素 | 时长 |
 | --- | --- |
 | 按钮按压反馈 | 100–160ms |
@@ -261,14 +303,14 @@ public class GlassSurface : Control
 
 > 频率越高，动效越短；命令快捷键、命令面板**不动画**（Raycast 风格——正确做法是零动画）。
 
-### 7.3 物理性与起源
+### 8.3 物理性与起源
 - **绝不用 `scale(0)`**（现实中没有东西凭空出现）：用 `scale(0.9–0.97)` + `opacity:0` 进入。
 - **从触发源缩放**：popover/菜单从触发它的按钮长出（`RenderTransformOrigin` 设到触发器），
   不是从自身中心——否则空间关系断裂。
 - **按压反馈**：`:pressed` 时 `Scale(0.97)`、~160ms `ease-out`，且**在按下瞬间**给反馈（不是释放时）。
 - 列表项按压、卡片等非交互元素不要乱加 hover 动效（高频命中区要克制）。
 
-### 7.4 中断性与速度（流体界面的关键）
+### 8.4 中断性与速度（流体界面的关键）
 - **动画从中断值继续，不从目标值重启**：重定向时读元素当前在屏值（presentation value）作为起点，
   否则可见跳变。Avalonia 的 `Transitions`（声明式）天然从中断态重定目标——优先用它，而非手写
   keyframe 每帧重绘（keyframe 重定向会从头重启）。
@@ -276,7 +318,7 @@ public class GlassSurface : Control
   `ElasticEase`/`BackEase` 近似反弹，或用 `Transitions` + `Easing` 达到可中断重定向。
 - 2D 运动拆成独立 X/Y 弹簧/过渡（X、Y 速度不同，单弹簧会失同步）。
 
-### 7.5 性能铁律（高帧率的根）
+### 8.5 性能铁律（高帧率的根）
 - **只动 `RenderTransform` 与 `Opacity`**——走合成线程/GPU，不触发布局重排。
 - **禁止**动画 `Width/Height/Margin/Padding/Top/Left/Canvas.Left`（每帧触发 Layout+Paint+Composite，必卡）。
 - **禁止 `Transition`/动画 `All` 属性**（等价 `transition: all`，会动到非 GPU 属性）。
@@ -284,18 +326,18 @@ public class GlassSurface : Control
 - 用 Avalonia 声明式 `Transitions`（预知运动）做状态动画；用 `DispatcherTimer` + 手写 `Render`
   做动态/手势/持续动效。
 
-### 7.6 频率原则
+### 8.6 频率原则
 - 100+ 次/天（键盘快捷键、命令面板开关）：**不动画**。
 - 数十次/天（hover、列表导航）：移除或大幅削减。
 - 偶尔（模态、抽屉、提示）：标准动画。
 - 罕见/首次（引导、成功庆祝）：可加 delight。
 > 最强修复往往不是"加动画"，而是**删动画**。
 
-### 7.7 无障碍（Reduced Motion / Transparency）
+### 8.7 无障碍（Reduced Motion / Transparency）
 - **`prefers-reduced-motion`**：用**短 cross-fade（透明度/颜色）替代位移与弹簧**，去掉弹性/overshoot；
   不是"全关反馈"。在 Avalonia 中检测系统偏好后，对位移动画降级为纯 `Opacity` 过渡（~200ms ease）。
 - **`prefers-reduced-transparency`**：抬高玻璃不透明度、降低模糊（更实/更霜）。
-- **`@media (hover: hover) and (pointer: fine)` 等价**：触摸设备不触发 hover 动效（tap 会误触 hover）。
+- **触摸设备不触发 hover 动效**（tap 会误触 hover）。
 
 ```csharp
 // 伪代码：读取系统偏好后分支
@@ -307,7 +349,7 @@ var entrance = reduce
                       /* Opacity + Translate(Y) */ };
 ```
 
-### 7.8 Avalonia 实现范式（非线性 + 高帧率）
+### 8.8 Avalonia 实现范式（非线性 + 高帧率）
 
 **XAML 声明式过渡（可中断、推荐用于状态动画）**：
 ```xml
@@ -315,9 +357,7 @@ var entrance = reduce
   <Border.Transitions>
     <Transitions>
       <TransformTransition Property="RenderTransform" Duration="0:0:0.28">
-        <TransformTransition.Easing>
-          <CubicEaseOut />
-        </TransformTransition.Easing>
+        <TransformTransition.Easing><CubicEaseOut /></TransformTransition.Easing>
       </TransformTransition>
       <DoubleTransition Property="Opacity" Duration="0:0:0.28" Easing="CubicEaseOut" />
     </Transitions>
@@ -325,7 +365,6 @@ var entrance = reduce
 </Border>
 <!-- 精确曲线用 KeySpline（等价 cubic-bezier 控制点） -->
 <Animation Duration="0:0:0.28" FillMode="Forward">
-  <Animation.SpeedRatio>1</Animation.SpeedRatio>
   <KeyFrame Cue="0%"   Setter="{Setter Opacity, 0}">
     <KeyFrame.KeySpline>0.23,1,0.32,1</KeyFrame.KeySpline>
   </KeyFrame>
@@ -340,7 +379,7 @@ var entrance = reduce
 var anim = new Animation
 {
     Duration = TimeSpan.FromMilliseconds(280),
-    Easing = new CubicEaseOut(),          // 或 new SplineEase{...} / KeySpline.Parse("0.23,1,0.32,1")
+    Easing = new CubicEaseOut(),          // 或 KeySpline.Parse("0.23,1,0.32,1")
     Children =
     {
         new KeyFrame { Cue = new Cue(0), Setters = { new Setter(OpacityProperty, 0d) } },
@@ -352,14 +391,68 @@ await anim.RunAsync(control);
 
 **持续动效（频谱/旋转/进度）——独立 Control + 节流定时器 + retained-mode**：
 ```csharp
-// 后台建变换，定时器只改 Angle / 平移，走 GPU 合成
 RotateTransform _rt = new(); ctrl.RenderTransform = _rt;
 var _t = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30fps
 _t.Tick += (_, _) => { _rt.Angle = (_rt.Angle + step) % 360; };  // 仅改 transform，不触重排
 // 仅在需要（播放/特效开）时 Start()，停止即 Stop()；数值变化用 CubicEaseOut 补间而非硬切
 ```
 
-## 8. 可视化控件范式（retained-mode，吸收 flat-meters）
+## 9. 图标规范（SVG · 现代极简 · icon-only）
+
+### 9.1 为什么是 SVG、为什么禁 emoji/系统图标
+- **SVG 矢量**：任意缩放清晰、单色可控、文件小、契合纯黑白极简。用内联 `StreamGeometry`
+  （`Geometry` 字典）或 `Path`/`PathIcon` 引用；也可用 `Avalonia.Svg` 的 `<Svg>` 直接加载 `.svg`。
+- **禁 emoji**：emoji 是彩色位图、跨平台/跨字体渲染不一致、自带描边与渐变——直接破坏"纯黑白 + 极简
+  玻璃"的调性，且无法统一描边风格。
+- **禁系统资源图标**：`SymbolIcon` / Segoe MDL2 / `FontIcon` 系统字形 / 位图 PNG 图标——依赖平台、
+  不可控单色描边、放大糊。一律自绘 SVG。
+
+### 9.2 风格（现代极简线性）
+- **线性描边（stroke-based）**：描边粗细 **1.5–2px**（按尺寸），`StrokeLineCap="Round"`
+  `StrokeLineJoin="Round"`（圆角端点，不显硬）。
+- **单色**：图标 `Stroke`/`Fill` 用纯黑或纯白（与文字同色系）；不用彩色图标（负载语义色只留给
+  数据可视化描边，见 §10）。
+- **icon-only**：能用图标表意就不加文字标签。按钮以图标为主，必要说明放进 `ToolTip`（无障碍）。
+- 图标视觉尺寸统一（如 16/20/24 三档），与相邻文字基线对齐。
+
+### 9.3 资源组织（Geometry 字典）
+`Styles/Geometries.axaml`（几何字典，`StreamGeometry` 资源，单色描边在引用处设）：
+```xml
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- 线性图标：用 StreamGeometry，引用处设 Stroke + StrokeThickness -->
+  <StreamGeometry x:Key="GeoPlay">M8 5 L19 12 L8 19 Z</StreamGeometry>      <!-- 实心三角(填充) -->
+  <StreamGeometry x:Key="GeoPause">M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z</StreamGeometry>
+  <StreamGeometry x:Key="GeoPrev">M15 6 L9 12 L15 18 M9 6 L9 18</StreamGeometry>  <!-- 线性：左三角+左杠 -->
+  <StreamGeometry x:Key="GeoNext">M9 6 L15 12 L9 18 M15 6 L15 18</StreamGeometry>  <!-- 线性：右三角+右杠 -->
+  <StreamGeometry x:Key="GeoClose">M6 6 L18 18 M18 6 L6 18</StreamGeometry>        <!-- 线性叉 -->
+</ResourceDictionary>
+```
+引用（线性图标用 `Path` + `Stroke`；实心图标用 `PathIcon`/`Path` + `Fill`）：
+```xml
+<!-- 线性图标按钮（icon-only，无文字） -->
+<Button Classes="icon" ToolTip.Tip="播放">
+  <Path Stroke="{StaticResource GlassForeground}" StrokeThickness="1.8"
+        StrokeLineCap="Round" StrokeLineJoin="Round"
+        Stretch="Uniform" Width="20" Height="20" Data="{StaticResource GeoPlay}" />
+</Button>
+<!-- 实心图标 -->
+<PathIcon Data="{StaticResource GeoPlay}" Foreground="{StaticResource GlassForeground}" Width="20" Height="20" />
+```
+```csharp
+// 代码里用 Geometry.Parse 或资源字典取
+var geo = (StreamGeometry)App.Current!.FindResource("GeoPlay")!;
+```
+
+### 9.4 风格对照（做对 vs 做错）
+| 场景 | 做对（✓） | 做错（✗） |
+| --- | --- | --- |
+| 播放 | SVG 三角（线性/实心，纯白） | ▶ emoji |
+| 关闭 | SVG 叉（圆角端点描边，纯白） | ❌ emoji / 系统 Close 字形 |
+| 菜单项 | 纯图标 + ToolTip | 图标 + 永远显示的冗余文字 |
+| 强调 | 纯黑白描边 | 彩色/渐变图标 |
+
+## 10. 可视化控件范式（retained-mode，吸收 flat-meters）
 
 做实时数据可视化（环形仪表 / 迷你曲线 / 进度）时，按单板范式直接布局在根 `GlassPanel` 上：
 - **RingGauge**：`Control`，`Render` 画背景整环 + 按值(0..100)扫过的弧 + 端点高光点；内部
@@ -369,20 +462,20 @@ _t.Tick += (_, _) => { _rt.Angle = (_rt.Angle + step) % 360; };  // 仅改 trans
   `Max` 固定（如 100）或直接取数据上限。
 - **状态色**：低绿 / 中琥珀 / 高红，阈值按指标定（如 CPU 60/85、内存 70/88）；
   `StatusColor(pct,warn,hot)` 返回对应 `Color`。**注意**：负载语义色只用于环/曲线的描边与填充，
-  **绝不**用于文字（文字恒纯黑白，见 §6）。
+  **绝不**用于文字/图标（文字图标恒纯黑白，见 §7/§9）。
 - **采集**：`DispatcherTimer` 1s 节流采样；历史用定长 `List` 环形缓冲（容量 ~60）；
   `PerformanceCounter`(CPU/磁盘) + `kernel32.GlobalMemoryStatusEx`(内存) + `NetworkInterface`
   字节差值(网络)，全部 try/catch 兜底。
 - **性能隔离**：retained-mode（画刷缓存，仅属性变才 `InvalidateVisual`）；持续动效用独立
   `Control` + 节流定时器，静止定格不烧 GPU；只改 `RenderTransform`/重绘，不触重排。
 
-## 9. 按钮风格
-- **窗口控制（关闭 / 最小化 / 最大化）**：固定**苹果红黄绿**三色灯（见下方交通灯样式）。
-- **功能按钮**：苹果玻璃风（`GlassButton` 半透明）或 WinUI 风（`Fluent` accent）二选一；
-  但按钮上的**文字仍纯黑白**。
-- 按压反馈：`RenderTransform` `Scale(0.97)`、~160ms `ease-out`，按下瞬间触发（§7.3）。
+## 11. 按钮风格
+- **窗口控制（关闭 / 最小化 / 最大化）**：固定**苹果红黄绿**三色灯（下方样式；glyph 用 SVG `Path` 描边）。
+- **功能按钮**：优先 **icon-only SVG 按钮**（§9.3 风格）；苹果玻璃风（`GlassButton` 半透明）或
+  WinUI 风（`Fluent` accent）二选一；按钮上的**文字仍纯黑白**（一般直接用图标，不附文字）。
+- 按压反馈：`RenderTransform` `Scale(0.97)`、~160ms `ease-out`，按下瞬间触发（§8.3）。
 
-macOS 交通灯（固定苹果风）：
+macOS 交通灯（固定苹果风，SVG 描边 glyph）：
 ```xml
 <Style Selector="Button.mac">
   <Setter Property="Width" Value="13" /><Setter Property="Height" Value="13" />
@@ -390,23 +483,27 @@ macOS 交通灯（固定苹果风）：
   <Setter Property="Focusable" Value="False" /><Setter Property="Cursor" Value="Hand" />
 </Style>
 <!-- close #FF5F57 / min #FEBC2E / max #28C840；glyph 默认透明，:pointerover 才显形 -->
+<!-- glyph 用 <Path Stroke="..." StrokeThickness="1.7" StrokeLineCap="Round" Data="M2 2 L10 10 M10 2 L2 10"/> 等 -->
 ```
 
-## 10. 设计令牌（去色，纯黑白）
+## 12. 设计令牌（去色，纯黑白 + 圆角）
 ```xml
-<Color x:Key="GlassText">#FFFFFF</Color>
+<Color x:Key="GlassText">#FFFFFF</Color>            <!-- 文字/图标：纯白 -->
 <SolidColorBrush x:Key="GlassForeground" Color="{StaticResource GlassText}" />
 <SolidColorBrush x:Key="HairlineBrush" Color="#20FFFFFF" />   <!-- 分隔线：纯白 12.5% -->
-<!-- 动画曲线 token（按 §7.1）：在代码里以常量/静态字段复用，避免散落 -->
+<!-- 圆角令牌（§4 嵌套体系）：统一一档，全站复用，禁止散落乱值 -->
+<!-- RadiusWindow=12 RadiusBoard=12 RadiusControl=10 RadiusChip=6 -->
+<!-- 动画曲线 token（§8.1）：在代码里以静态字段复用，避免散落 -->
 ```
-// 代码侧动画 token 示例（复用，不重复手写）：
+// 代码侧 token 示例：
 // static readonly Easing EaseOut = new CubicEaseOut();   // ≈ cubic-bezier(0.23,1,0.32,1)
 // static readonly Easing EaseInOut = new CubicEaseInOut();
+// const double RadiusControl = 10;  // 与 XAML 令牌一致
 
-## 11. 代码生成纪律（重申）
-不照抄；理解 §0 七条铁律后，按本项目的 AssemblyName、主题、圆角、动画曲线与阈值**重新生成**代码。
+## 13. 代码生成纪律（重申）
+不照抄；理解 §0 九条铁律后，按本项目的 AssemblyName、主题、圆角、动画曲线与阈值**重新生成**代码。
 
-## 12. 优化提示词（针对 C# / Avalonia，可直接复制给 AI 生成）
+## 14. 优化提示词（针对 C# / Avalonia，可直接复制给 AI 生成）
 
 **中文版**：
 ```
@@ -417,16 +514,20 @@ macOS 交通灯（固定苹果风）：
    玻璃控件只叠低不透明度(≈0.4)的中性 tint，让模糊透出；不要给控件加 BlurEffect。
 3. 字体用无衬线、高清（保持默认抗锯齿）、无描边的系统字体（Segoe UI/Inter）；
    LetterSpacing 随字号（大标题负、正文近0）；文字与图标颜色只用纯黑 #000000 或纯白 #FFFFFF，
-   层级靠 Opacity 区分，禁止灰色或彩色文字。
+   层级靠 Opacity 区分，禁止灰色或彩色文字/图标。
 4. 动画必须高帧率、高流畅、非线性：只改 RenderTransform 与 Opacity（走 GPU 合成，不触布局重排）；
    进入/退出用 ease-out（≈cubic-bezier(0.23,1,0.32,1)），屏内移动用 ease-in-out，UI 时长 <300ms；
    优先用 Avalonia 声明式 Transitions（可中断重定向），持续动效用独立 Control + 节流 DispatcherTimer
    (30–60fps)；数值变化用 CubicEaseOut 补间，手势/可中断动效用弹簧/Transition，禁止线性匀速；
    高频动作（键盘快捷键/命令面板）不动画；尊重 prefers-reduced-motion（降级为短 cross-fade）。
-5. 窗口控制按钮（关闭/最小化/最大化）用苹果红黄绿三色灯；功能按钮可用苹果玻璃风或 WinUI 风。
-6. 实时可视化（如需）用 retained-mode 独立 Control（环形仪表/迷你曲线），CubicEaseOut 数值补间，
+5. 圆角一致：建立嵌套半径体系（窗口≈板 12、控件 10、小元素 6），内层圆角 = 外层圆角 − 间距，
+   使弧度贴合；禁止内层圆角大于外层，禁止同屏圆角值乱跳。
+6. 图标用 SVG 矢量、现代极简线性风格（描边 1.5–2px、圆角端点、单色纯黑白）；能用图标表意就不加
+   文字（icon-only，必要说明放 ToolTip）；禁止 emoji 与系统资源图标（SymbolIcon/MDL2/位图）。
+7. 窗口控制按钮（关闭/最小化/最大化）用苹果红黄绿三色灯；功能按钮用 icon-only SVG 风格。
+8. 实时可视化（如需）用 retained-mode 独立 Control（环形仪表/迷你曲线），CubicEaseOut 数值补间，
    负载语义色只用于描边/填充、绝不用于文字；采集用节流定时器 + 环形缓冲。
-7. 不要直接照抄模板，理解上述原理后按本项目的 AssemblyName、主题色、圆角与动画曲线生成代码。
+9. 不要直接照抄模板，理解上述原理后按本项目的 AssemblyName、主题色、圆角与动画曲线生成代码。
 ```
 
 **English version**：
@@ -438,22 +539,27 @@ Implement a minimal frosted-glass desktop UI in C# + Avalonia 11 (net8.0). Stric
 2. TransparencyLevelHint="AcrylicBlur" for real frosted glass (OS blurs behind the window, moderate).
    Glass controls only overlay a low-opacity (~0.4) neutral tint; do NOT add BlurEffect to controls.
 3. Fonts: sans-serif, high-DPI crisp (keep default antialiasing), NO stroke (system font preferred,
-   Segoe UI/Inter). LetterSpacing scales with size (negative on large, ~0 on body). Text/icons use
-   ONLY pure black #000000 or pure white #FFFFFF; use Opacity for hierarchy, never grey/colored text.
+   Segoe UI/Inter). LetterSpacing scales with size (negative on large, ~0 on body). Text AND icons use
+   ONLY pure black #000000 or pure white #FFFFFF; use Opacity for hierarchy, never grey/colored.
 4. Animations: high-FPS, smooth, NON-LINEAR. Animate ONLY RenderTransform and Opacity (GPU composited,
    no reflow). Entrances/exits ease-out (~cubic-bezier(0.23,1,0.32,1)), on-screen moves ease-in-out,
    UI durations <300ms. Prefer Avalonia declarative Transitions (interruptible re-targeting); persistent
    effects use a dedicated Control + throttled DispatcherTimer (30–60fps). Tween values with CubicEaseOut;
    use springs/Transitions for gesture/interruptible motion — never linear. No animation on high-frequency
    actions (shortcuts, command palette). Respect prefers-reduced-motion (degrade to short cross-fade).
-5. Window controls (close/min/max) use macOS red/yellow/green; function buttons may be Apple-glass or WinUI.
-6. Realtime visualizations (if any): retained-mode dedicated Controls (ring gauge / sparkline), CubicEaseOut
+5. Consistent corners: a nested radius system (window≈board 12, control 10, chip 6); inner radius =
+   outer radius − gap, so arcs stay flush. Never let an inner radius exceed its outer; no scattered radii.
+6. Icons: SVG vector, modern minimal linear style (stroke 1.5–2px, round caps, monochrome pure B/W);
+   icon-only when the glyph is self-explanatory (put explanation in ToolTip); NO emoji, NO system glyph
+   icons (SymbolIcon/MDL2/bitmap).
+7. Window controls (close/min/max) use macOS red/yellow/green; function buttons use icon-only SVG style.
+8. Realtime visualizations (if any): retained-mode dedicated Controls (ring gauge / sparkline), CubicEaseOut
    value tweening; load-semantic colors ONLY on strokes/fills, never on text; throttle sampling + ring buffer.
-7. Do not copy templates verbatim — understand the principles and generate code for this project's
+9. Do not copy templates verbatim — understand the principles and generate code for this project's
    AssemblyName, theme, corner radius, and easing curves.
 ```
 
-## 13. 验证
+## 15. 验证
 
 1. `dotnet build -v q` 应 **0 错误 0 警告**（Avalonia 警告当错误看）。
 2. 视觉自查靠截图交给用户/多模态模型——**当前模型通常读不了渲染图**，别假装能看图自检。
@@ -461,6 +567,8 @@ Implement a minimal frosted-glass desktop UI in C# + Avalonia 11 (net8.0). Stric
    - 窗口后方桌面是否被**适度模糊**透出（真毛玻璃成立）；
    - 是否**只有一块玻璃板**、无额外玻璃小组件块；
    - 字体是否**无衬线、无描边**；`LetterSpacing` 是否随字号；
-   - 文字是否**纯黑/纯白**、无灰色/彩色；
+   - 文字与图标是否**纯黑/纯白**、无灰色/彩色；
    - 动画是否**流畅且非线性**（有缓动曲线 / 可中断）、帧率高、无重排卡顿；
+   - **圆角是否一致贴合**（窗口/板/控件弧度按嵌套体系收缩，无内层>外层、无乱跳）；
+   - **图标是否 SVG 线性单色 icon-only**、无 emoji/系统图标；
    - 高频动作是否**没**多余动画；`prefers-reduced-motion` 是否降级。
