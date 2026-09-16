@@ -23,6 +23,10 @@ my-novels——我喜欢的写作方式和特点
 
 avalonia-glass——磨砂玻璃风格C# Avalonia设计
 
+sci-graph——科研级数据绘图（统计语义·图型·编码·版式·导出）
+
+zmd——工业机能风设计语言（双基调配色·切角形态·单载体动效）
+
 ---
 
 ## install
