@@ -1,5 +1,5 @@
 ---
-name: single-carrier-motion
+name: zmd
 version: 2.0.0
 title: 单载体信息组件 · 动效范式
 description: >
